@@ -13,10 +13,10 @@ import (
 
 type SyncAddressService struct {
 	log  *zap.Logger
-	repo *repo.Dgraph
+	repo repo.DgraphInterface
 }
 
-func NewSyncAddressService(log *zap.Logger, repo *repo.Dgraph) *SyncAddressService {
+func NewSyncAddressService(log *zap.Logger, repo repo.DgraphInterface) *SyncAddressService {
 	return &SyncAddressService{
 		log:  log,
 		repo: repo,
