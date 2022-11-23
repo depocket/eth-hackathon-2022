@@ -31,9 +31,9 @@ type DgraphInterface interface {
 	CreateNode(ctx context.Context, field, value string, user interface{}) error
 	UpdateNode(ctx context.Context, field, value string, user interface{}) error
 
-	OutFlow(depth int, address string, token string, from time.Time, to time.Time) (interface{}, error)
-	InFlow(depth int, address string, token string, from time.Time, to time.Time) (interface{}, error)
-	FullFlow(depth int, address string, token string, from time.Time, to time.Time) (interface{}, error)
+	OutFlow(depth int, address string, token string, from time.Time, to time.Time) (*model.ResponseFlow, error)
+	InFlow(depth int, address string, token string, from time.Time, to time.Time) (*model.ResponseFlow, error)
+	FullFlow(depth int, address string, token string, from time.Time, to time.Time) (*model.ResponseFlow, error)
 	Path(path int, from string, to string) (interface{}, error)
 }
 
@@ -148,7 +148,7 @@ func (r *Dgraph) UpdateNode(ctx context.Context, field, value string, user inter
 	return nil
 }
 
-func (r *Dgraph) FullFlow(depth int, address string, token string, from time.Time, to time.Time) (interface{}, error) {
+func (r *Dgraph) FullFlow(depth int, address string, token string, from time.Time, to time.Time) (*model.ResponseFlow, error) {
 	// people who have given money to anyone who has given money to me
 	// people who have received money from anyone who has received money from me
 	query := `
@@ -160,10 +160,13 @@ func (r *Dgraph) FullFlow(depth int, address string, token string, from time.Tim
 			
 			~sender  @filter(between(txn_time,"[FROM]","[TO]") AND eq(token_address,"[TOKEN]")) 
 			sender
+
+			uid
 			txn_id 
 			txn_time
 			name
 		    token_address
+			address
 		  }
 		}
 	`
@@ -180,24 +183,28 @@ func (r *Dgraph) FullFlow(depth int, address string, token string, from time.Tim
 	if err != nil {
 		return nil, err
 	}
-	res := map[string]interface{}{}
+
+	res := &model.ResponseFlow{}
 	if err := json.Unmarshal(resp.Json, &res); err != nil {
 		return nil, err
 	}
+
 	return res, nil
 }
 
-func (r *Dgraph) InFlow(depth int, address string, token string, from time.Time, to time.Time) (interface{}, error) {
+func (r *Dgraph) InFlow(depth int, address string, token string, from time.Time, to time.Time) (*model.ResponseFlow, error) {
 	// show me people who have given money to anyone who has given money to me
 	query := `
 		{
 		  data(func: eq(address,"[ADDRESS]")) @recurse (depth:[DEPTH])  {
 			~recipient @filter(between(txn_time,"[FROM]","[TO]") AND eq(token_address,"[TOKEN]")) 
+			uid
 			sender
 			txn_id 
 			txn_time
 			name
 		    token_address
+			address
 		  }
 		}
 	`
@@ -215,24 +222,26 @@ func (r *Dgraph) InFlow(depth int, address string, token string, from time.Time,
 		return nil, err
 	}
 
-	res := map[string]interface{}{}
+	res := &model.ResponseFlow{}
 	if err := json.Unmarshal(resp.Json, &res); err != nil {
 		return nil, err
 	}
 	return res, nil
 }
 
-func (r *Dgraph) OutFlow(depth int, address string, token string, from time.Time, to time.Time) (interface{}, error) {
+func (r *Dgraph) OutFlow(depth int, address string, token string, from time.Time, to time.Time) (*model.ResponseFlow, error) {
 	// show me people who have received money from anyone who has received money from me
 	query := `
 		{
 		  data(func: eq(address,"[ADDRESS]")) @recurse (depth:[DEPTH])  {
 			~sender @filter(between(txn_time,"[FROM]","[TO]") AND eq(token_address,"[TOKEN]")) 
+			uid
 			recipient
 			txn_id 
 			txn_time
 			name
 		    token_address
+			address
 		  }
 		}
 	`
@@ -250,7 +259,7 @@ func (r *Dgraph) OutFlow(depth int, address string, token string, from time.Time
 		return nil, err
 	}
 
-	res := map[string]interface{}{}
+	res := &model.ResponseFlow{}
 	if err := json.Unmarshal(resp.Json, &res); err != nil {
 		return nil, err
 	}

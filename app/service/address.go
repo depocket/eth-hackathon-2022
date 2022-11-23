@@ -19,21 +19,21 @@ func NewAddressService(log *zap.Logger, repo repo.DgraphInterface) *AddressServi
 }
 
 type AddressInterface interface {
-	FullFlow(req model.FlowRequest) (interface{}, error)
-	InFlow(req model.FlowRequest) (interface{}, error)
-	OutFlow(req model.FlowRequest) (interface{}, error)
+	FullFlow(req model.FlowRequest) (*model.ResponseFlow, error)
+	InFlow(req model.FlowRequest) (*model.ResponseFlow, error)
+	OutFlow(req model.FlowRequest) (*model.ResponseFlow, error)
 	Path(req model.PathRequest) (interface{}, error)
 }
 
-func (s *AddressService) FullFlow(req model.FlowRequest) (interface{}, error) {
+func (s *AddressService) FullFlow(req model.FlowRequest) (*model.ResponseFlow, error) {
 	return s.repo.FullFlow(req.Depth, req.Address, req.Token, req.From, req.To)
 }
 
-func (s *AddressService) InFlow(req model.FlowRequest) (interface{}, error) {
+func (s *AddressService) InFlow(req model.FlowRequest) (*model.ResponseFlow, error) {
 	return s.repo.InFlow(req.Depth, req.Address, req.Token, req.From, req.To)
 }
 
-func (s *AddressService) OutFlow(req model.FlowRequest) (interface{}, error) {
+func (s *AddressService) OutFlow(req model.FlowRequest) (*model.ResponseFlow, error) {
 	return s.repo.OutFlow(req.Depth, req.Address, req.Token, req.From, req.To)
 }
 
