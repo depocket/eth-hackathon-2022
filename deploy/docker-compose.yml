@@ -1,0 +1,17 @@
+version: '3.8'
+services:
+  joon:
+    container_name: hackathon
+    image: "hackathon:${BUILD_VERSION}"
+    hostname: hackathon
+    restart: always
+    volumes:
+      - .:/hackathon
+      - shared_gopath:/gopath
+    environment:
+      - DGRAPH_ADDRESS=${DGRAPH_ADDRESS}
+      - DGRAPH_PORT=${DGRAPH_PORT}
+      - SERVER_ENV=${SERVER_ENV}
+      - SERVER_PORT=${SERVER_PORT}
+    ports:
+      - "8002:8002"

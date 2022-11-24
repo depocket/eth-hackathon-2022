@@ -1,0 +1,8 @@
+FROM alpine:3.8
+
+WORKDIR /home/
+COPY hackathon.bin .
+RUN chmod +x hackathon.bin
+
+EXPOSE 8002
+CMD ["./hackathon.bin"]
