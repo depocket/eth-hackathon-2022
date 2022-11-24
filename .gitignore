@@ -62,3 +62,4 @@ bin
 .envs/*.env
 .local
 .build/
+/frontend/node_modules/
