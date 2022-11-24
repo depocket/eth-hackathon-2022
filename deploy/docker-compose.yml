@@ -15,4 +15,22 @@ services:
     ports:
       - "8002:8002"
     networks:
-      - thangpx_default
+      - hackathon
+
+  dgraph-hackathon:
+    image: dgraph/standalone:v21.03.0
+    container_name: dgraph-hackathon
+    ports:
+      - "6081:6080"
+      - "8001:8000"
+      - "8081:8080"
+      - "9081:9080"
+    restart: always
+    volumes:
+      - ./uptime-dgraph:/dgraph
+    networks:
+      - hackathon
+
+networks:
+  thangpx_default:
+    name: hackathon
