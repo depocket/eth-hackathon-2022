@@ -2,7 +2,6 @@ package model
 
 import (
 	"github.com/jinzhu/gorm/dialects/postgres"
-	"gorm.io/gorm"
 	"time"
 )
 
@@ -23,16 +22,6 @@ type Transaction struct {
 	Value         int64          `json:"value"`
 	Status        bool           `json:"status" gorm:"default: false"`
 	Time          time.Time      `gorm:"type:time;index"`
-}
-
-type BaseModelID struct {
-	ID uint64 `json:"id" gorm:"primaryKey;autoIncrement"`
-}
-
-type BaseModelTime struct {
-	CreatedAt time.Time       `gorm:"column:created_at;default:CURRENT_TIMESTAMP" json:"created_at"`
-	UpdatedAt time.Time       `gorm:"column:updated_at;default:CURRENT_TIMESTAMP" json:"updated_at"`
-	DeletedAt *gorm.DeletedAt `json:"deleted_at,omitempty"`
 }
 
 type Token struct {

@@ -15,6 +15,7 @@ type PathRequest struct {
 	FromAddress string `json:"from_address" binding:"required"`
 	ToAddress   string `json:"to_address" binding:"required"`
 }
+
 type TransactionRequest struct {
 	Chain         *string `json:"chain"`
 	Limit         *int    `json:"limit"`

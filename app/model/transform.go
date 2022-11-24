@@ -5,6 +5,7 @@ type FlowTransformed struct {
 	Nodes []Node                  `json:"nodes"`
 	Edges []Edge                  `json:"edges"`
 }
+
 type PathTransformed struct {
 	Nodes []Node `json:"nodes"`
 	Edges []Edge `json:"edges"`
