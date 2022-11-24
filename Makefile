@@ -13,7 +13,7 @@ build:
 	$(GO_BUILD_ENV) go build -v -o $(PROJECT_NAME)-$(BUILD_VERSION).bin main.go
 
 compose_dev: docker
-	cd deploy && BUILD_VERSION=$(BUILD_VERSION) docker-compose up --build --force-recreate -d
+	cd deploy && BUILD_VERSION=$(BUILD_VERSION) docker compose up --build --force-recreate -d
 
 docker_prebuild: build
 	mv $(PROJECT_NAME)-$(BUILD_VERSION).bin deploy/$(PROJECT_NAME).bin; \

@@ -7,7 +7,6 @@ services:
     restart: always
     volumes:
       - .:/hackathon
-      - shared_gopath:/gopath
     environment:
       - DGRAPH_ADDRESS=${DGRAPH_ADDRESS}
       - DGRAPH_PORT=${DGRAPH_PORT}
