@@ -6,6 +6,7 @@ import (
 	"github.com/apex/gateway"
 	"github.com/dgraph-io/dgo/v200"
 	"github.com/dgraph-io/dgo/v200/protos/api"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
@@ -23,6 +24,23 @@ func inLambda() bool {
 
 func (server *Server) Run(env string) error {
 	r := gin.Default()
+	headerPolicies := cors.DefaultConfig()
+	headerPolicies.AllowOrigins = []string{
+		"http://localhost:3000",
+		"https://depocket.netlify.app",
+	}
+	headerPolicies.AllowHeaders = []string{
+		"Access-Control-Allow-Credentials",
+		"Access-Control-Allow-Headers",
+		"Content-Type",
+		"Content-Length",
+		"Accept-Encoding",
+		"Authorization",
+		"Access-Control-Allow-Origin",
+		"X-Captcha-Response",
+		"X-Forwarded-For",
+	}
+	r.Use(cors.New(headerPolicies))
 	log, _ := zap.NewDevelopment()
 	dgraphAddress := os.Getenv("DGRAPH_ADDRESS")
 	dgraphPort := os.Getenv("DGRAPH_PORT")
