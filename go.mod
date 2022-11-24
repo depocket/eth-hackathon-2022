@@ -10,7 +10,6 @@ require (
 	github.com/joho/godotenv v1.4.0
 	go.uber.org/zap v1.23.0
 	google.golang.org/grpc v1.51.0
-	gorm.io/gorm v1.24.2
 )
 
 require (
@@ -22,8 +21,6 @@ require (
 	github.com/goccy/go-json v0.9.7 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
-	github.com/jinzhu/inflection v1.0.0 // indirect
-	github.com/jinzhu/now v1.1.4 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/lib/pq v1.10.2 // indirect

@@ -11,7 +11,7 @@ type FlowRequest struct {
 }
 
 type PathRequest struct {
-	Path        int    `json:"path" binding:"required"`
+	//Path        int    `json:"path" binding:"required"`
 	FromAddress string `json:"from_address" binding:"required"`
 	ToAddress   string `json:"to_address" binding:"required"`
 }

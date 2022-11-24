@@ -39,5 +39,5 @@ func (s *AddressService) OutFlow(ctx context.Context, req model.FlowRequest) (*m
 }
 
 func (s *AddressService) Path(ctx context.Context, req model.PathRequest) (*model.ResponsePath, error) {
-	return s.repo.Path(ctx, req.Path, req.FromAddress, req.ToAddress)
+	return s.repo.Path(ctx, req.FromAddress, req.ToAddress)
 }

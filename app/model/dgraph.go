@@ -75,8 +75,8 @@ type ResponseFlow struct {
 }
 
 type ResponsePath struct {
-	Path []Path       `json:"_path_"`
-	Node []NodeDgraph `json:"node"`
+	Path []map[string]interface{} `json:"_path_"`
+	Node []NodeDgraph             `json:"node"`
 }
 
 type NodeDgraph struct {

@@ -103,7 +103,7 @@ func TransformFlowResponse(flow *model.ResponseFlow) model.FlowTransformed {
 	resNode := make([]model.Node, 0)
 	resEdge := make([]model.Edge, 0)
 	for _, data := range flow.Data {
-		identify(data, nodes, edges)
+		identifyFlow(data, nodes, edges)
 	}
 	for _, v := range nodes {
 		resNode = append(resNode, v)
@@ -119,28 +119,33 @@ func TransformFlowResponse(flow *model.ResponseFlow) model.FlowTransformed {
 }
 
 func TransformPathResponse(path *model.ResponsePath) model.PathTransformed {
-	nodes := make(map[string]model.Node, 0)
-	for _, n := range path.Node {
-		nodes[n.UID] = model.Node{
-			Id:    n.UID,
-			Label: n.Address,
-			Title: "address",
-		}
-	}
+	trans := make(map[string]string, 0)
 	resNode := make([]model.Node, 0)
-	for _, v := range nodes {
-		// filter trans node
-		if v.Label != "" {
-			resNode = append(resNode, v)
+	for _, n := range path.Node {
+		if n.Address == "" {
+			trans[n.UID] = n.Name
+		} else {
+			resNode = append(resNode, model.Node{
+				Id:    n.UID,
+				Label: n.Address,
+				Title: "address",
+			})
 		}
 	}
 
 	//-------------------------------------
-
-	edges := make(map[string]model.Edge, 0)
 	resEdge := make([]model.Edge, 0)
-	for _, v := range edges {
-		resEdge = append(resEdge, v)
+	for _, p := range path.Path {
+		edge := make(map[int]string, 0)
+		identifyPath(p, edge, utils.ToPointer(0))
+		for i := 0; i < len(edge)-2; i += 2 {
+			resEdge = append(resEdge, model.Edge{
+				ID:    edge[i+1],
+				From:  edge[i],
+				To:    edge[i+2],
+				Label: trans[edge[i+1]],
+			})
+		}
 	}
 	return model.PathTransformed{
 		Nodes: resNode,
@@ -148,7 +153,7 @@ func TransformPathResponse(path *model.ResponsePath) model.PathTransformed {
 	}
 }
 
-func identify(output model.AddressDgraphResponse, nodes map[string]model.Node, edges map[string]model.Edge) {
+func identifyFlow(output model.AddressDgraphResponse, nodes map[string]model.Node, edges map[string]model.Edge) {
 	if output.UID != "" {
 		nodes[output.UID] = model.Node{
 			Id:    output.UID,
@@ -157,33 +162,48 @@ func identify(output model.AddressDgraphResponse, nodes map[string]model.Node, e
 		}
 		for _, sender := range output.Sender {
 			if sender.UID != "" {
-				if sender.Sender.UID != "" && sender.Recipient.UID != "" {
-					edges[sender.Sender.UID+sender.Recipient.UID+sender.Name] = model.Edge{
-						ID:       sender.TxnTime.Unix(),
-						From:     sender.Sender.UID,
+				if output.UID != "" && sender.Recipient.UID != "" {
+					edges[output.UID+sender.Recipient.UID+sender.Name] = model.Edge{
+						ID:       sender.UID,
+						From:     output.UID,
 						To:       sender.Recipient.UID,
 						Label:    sender.Name,
 						Relation: "out",
 					}
-					identify(sender.Sender, nodes, edges)
-					identify(sender.Recipient, nodes, edges)
+					identifyFlow(sender.Sender, nodes, edges)
+					identifyFlow(sender.Recipient, nodes, edges)
 				}
 			}
 		}
 		for _, recipient := range output.Recipient {
 			if recipient.UID != "" {
-				if recipient.Sender.UID != "" && recipient.Recipient.UID != "" {
-					edges[recipient.Sender.UID+recipient.Recipient.UID+recipient.Name] = model.Edge{
-						ID:       recipient.TxnTime.Unix(),
+				if recipient.Sender.UID != "" && output.UID != "" {
+					edges[recipient.Sender.UID+output.UID+recipient.Name] = model.Edge{
+						ID:       recipient.UID,
 						From:     recipient.Sender.UID,
-						To:       recipient.Recipient.UID,
+						To:       output.UID,
 						Label:    recipient.Name,
 						Relation: "in",
 					}
-					identify(recipient.Sender, nodes, edges)
-					identify(recipient.Recipient, nodes, edges)
+					identifyFlow(recipient.Sender, nodes, edges)
+					identifyFlow(recipient.Recipient, nodes, edges)
 				}
 			}
 		}
+	}
+}
+func identifyPath(path map[string]interface{}, edge map[int]string, count *int) {
+	edge[*count] = path["uid"].(string)
+	*count++
+	if v, ok := path["~recipient"]; ok {
+		identifyPath(v.(map[string]interface{}), edge, count)
+	} else if v, ok := path["recipient"]; ok {
+		identifyPath(v.(map[string]interface{}), edge, count)
+	} else if v, ok := path["~sender"]; ok {
+		identifyPath(v.(map[string]interface{}), edge, count)
+	} else if v, ok := path["sender"]; ok {
+		identifyPath(v.(map[string]interface{}), edge, count)
+	} else {
+		return
 	}
 }

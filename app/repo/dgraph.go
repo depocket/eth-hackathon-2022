@@ -36,7 +36,7 @@ type DgraphInterface interface {
 	OutFlow(ctx context.Context, depth int, address string, token string, from time.Time, to time.Time) (*model.ResponseFlow, error)
 	InFlow(ctx context.Context, depth int, address string, token string, from time.Time, to time.Time) (*model.ResponseFlow, error)
 	FullFlow(ctx context.Context, depth int, address string, token string, from time.Time, to time.Time) (*model.ResponseFlow, error)
-	Path(ctx context.Context, path int, from string, to string) (*model.ResponsePath, error)
+	Path(ctx context.Context, from string, to string) (*model.ResponsePath, error)
 }
 
 func (r *Dgraph) GetByAddress(ctx context.Context, address string) (string, error) {
@@ -268,7 +268,7 @@ func (r *Dgraph) OutFlow(ctx context.Context, depth int, address string, token s
 	return res, nil
 }
 
-func (r *Dgraph) Path(ctx context.Context, path int, from string, to string) (*model.ResponsePath, error) {
+func (r *Dgraph) Path(ctx context.Context, from string, to string) (*model.ResponsePath, error) {
 	// show me people who have received money from anyone who has received money from me
 	query := ` 
 	{
@@ -276,7 +276,7 @@ func (r *Dgraph) Path(ctx context.Context, path int, from string, to string) (*m
 	 from as var(func: eq(address, "[FROM_ADDRESS]"))
 	 to as var(func: eq(address, "[TO_ADDRESS]"))
 	  
-	 path as shortest(from: uid(from), to: uid(to),numpaths: [PATH]) {
+	 path as shortest(from: uid(from), to: uid(to)) {
 	  ~recipient
 	  ~sender
 	  sender
@@ -294,7 +294,6 @@ func (r *Dgraph) Path(ctx context.Context, path int, from string, to string) (*m
 	replacer := strings.NewReplacer(
 		"[FROM_ADDRESS]", from,
 		"[TO_ADDRESS]", to,
-		"[PATH]", fmt.Sprintf("%v", path),
 	)
 	query = replacer.Replace(query)
 

@@ -18,7 +18,7 @@ type Node struct {
 }
 
 type Edge struct {
-	ID       int64  `json:"id"`
+	ID       string `json:"id"`
 	From     string `json:"from"`
 	To       string `json:"to"`
 	Label    string `json:"label"`

@@ -29,14 +29,17 @@ type SyncAddressInterface interface {
 
 func (s *SyncAddressService) SyncAddress(ctx context.Context, chain string, txns []model.Transaction, symbols map[string]model.Token) error {
 	for _, txn := range txns {
+		ctx, cancel := context.WithTimeout(context.Background(), utils.GeneralTimeout)
 		action := model.TransferAction{}
 		if err := json.Unmarshal(txn.DecodedInput.RawMessage, &action); err != nil {
 			s.log.Sugar().Error(err)
+			cancel()
 			continue
 		}
 		_, err := s.repo.GetByTransaction(ctx, txn.Hash)
 		if err != nil && !utils.IsNotFound(err) {
 			s.log.Sugar().Error(err)
+			cancel()
 			continue
 		}
 		if utils.IsNotFound(err) {
@@ -44,12 +47,14 @@ func (s *SyncAddressService) SyncAddress(ctx context.Context, chain string, txns
 			uidSender, err := s.repo.GetByAddress(ctx, txn.FromAddress)
 			if err != nil && !utils.IsNotFound(err) {
 				s.log.Sugar().Error(err)
+				cancel()
 				return err
 			}
 
 			uidRecipient, err := s.repo.GetByAddress(ctx, action.Recipient)
 			if err != nil && !utils.IsNotFound(err) {
 				s.log.Sugar().Error(err)
+				cancel()
 				return err
 			}
 
@@ -79,9 +84,11 @@ func (s *SyncAddressService) SyncAddress(ctx context.Context, chain string, txns
 				DType:        []string{"Transaction"},
 			}); err != nil {
 				s.log.Sugar().Error(err)
+				cancel()
 				return err
 			}
 		}
+		cancel()
 	}
 	return nil
 }
