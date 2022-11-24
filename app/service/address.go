@@ -23,7 +23,7 @@ type AddressInterface interface {
 	FullFlow(ctx context.Context, req model.FlowRequest) (*model.ResponseFlow, error)
 	InFlow(ctx context.Context, req model.FlowRequest) (*model.ResponseFlow, error)
 	OutFlow(ctx context.Context, req model.FlowRequest) (*model.ResponseFlow, error)
-	Path(ctx context.Context, req model.PathRequest) (interface{}, error)
+	Path(ctx context.Context, req model.PathRequest) (*model.ResponsePath, error)
 }
 
 func (s *AddressService) FullFlow(ctx context.Context, req model.FlowRequest) (*model.ResponseFlow, error) {
@@ -38,6 +38,6 @@ func (s *AddressService) OutFlow(ctx context.Context, req model.FlowRequest) (*m
 	return s.repo.OutFlow(ctx, req.Depth, req.Address, req.Token, req.From, req.To)
 }
 
-func (s *AddressService) Path(ctx context.Context, req model.PathRequest) (interface{}, error) {
+func (s *AddressService) Path(ctx context.Context, req model.PathRequest) (*model.ResponsePath, error) {
 	return s.repo.Path(ctx, req.Path, req.FromAddress, req.ToAddress)
 }

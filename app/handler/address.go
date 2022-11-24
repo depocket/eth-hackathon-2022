@@ -86,12 +86,14 @@ func (h *AddressHandler) Path(c *gin.Context) {
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), utils.GeneralTimeout)
 	defer cancel()
-	recommend, err := h.service.Path(ctx, jsonParams)
+
+	path, err := h.service.Path(ctx, jsonParams)
 	if err != nil {
 		utils.Response(c, err)
 		return
 	}
-	c.JSON(200, recommend)
+
+	c.JSON(200, TransformPathResponse(path))
 
 }
 
@@ -111,6 +113,36 @@ func TransformFlowResponse(flow *model.ResponseFlow) model.FlowTransformed {
 	}
 	return model.FlowTransformed{
 		Data:  flow.Data,
+		Nodes: resNode,
+		Edges: resEdge,
+	}
+}
+
+func TransformPathResponse(path *model.ResponsePath) model.PathTransformed {
+	nodes := make(map[string]model.Node, 0)
+	for _, n := range path.Node {
+		nodes[n.UID] = model.Node{
+			Id:    n.UID,
+			Label: n.Address,
+			Title: "address",
+		}
+	}
+	resNode := make([]model.Node, 0)
+	for _, v := range nodes {
+		// filter trans node
+		if v.Label != "" {
+			resNode = append(resNode, v)
+		}
+	}
+
+	//-------------------------------------
+
+	edges := make(map[string]model.Edge, 0)
+	resEdge := make([]model.Edge, 0)
+	for _, v := range edges {
+		resEdge = append(resEdge, v)
+	}
+	return model.PathTransformed{
 		Nodes: resNode,
 		Edges: resEdge,
 	}

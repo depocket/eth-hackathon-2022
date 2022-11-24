@@ -73,13 +73,21 @@ type TransactionDgraphResponse struct {
 type ResponseFlow struct {
 	Data []AddressDgraphResponse `json:"data"`
 }
+
 type ResponsePath struct {
-	Path []map[string]interface{} `json:"_path_"`
-	Node []NodeDgraph             `json:"node"`
+	Path []Path       `json:"_path_"`
+	Node []NodeDgraph `json:"node"`
 }
 
 type NodeDgraph struct {
 	UID     string `json:"uid,omitempty"`
 	Address string `json:"address,omitempty"`
 	Name    string `json:"name,omitempty"`
+}
+
+type Path struct {
+	Weight    float64                `json:"_weight_"`
+	Uid       string                 `json:"uid"`
+	Sender    map[string]interface{} `json:"~sender"`
+	Recipient map[string]interface{} `json:"~recipient"`
 }

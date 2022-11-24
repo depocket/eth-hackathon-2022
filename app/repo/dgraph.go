@@ -34,7 +34,7 @@ type DgraphInterface interface {
 	OutFlow(ctx context.Context, depth int, address string, token string, from time.Time, to time.Time) (*model.ResponseFlow, error)
 	InFlow(ctx context.Context, depth int, address string, token string, from time.Time, to time.Time) (*model.ResponseFlow, error)
 	FullFlow(ctx context.Context, depth int, address string, token string, from time.Time, to time.Time) (*model.ResponseFlow, error)
-	Path(ctx context.Context, path int, from string, to string) (interface{}, error)
+	Path(ctx context.Context, path int, from string, to string) (*model.ResponsePath, error)
 }
 
 func (r *Dgraph) GetByAddress(ctx context.Context, address string) (string, error) {
@@ -179,7 +179,7 @@ func (r *Dgraph) FullFlow(ctx context.Context, depth int, address string, token 
 	)
 	query = replacer.Replace(query)
 
-	resp, err := r.DB.NewTxn().Query(context.Background(), query)
+	resp, err := r.DB.NewTxn().Query(ctx, query)
 	if err != nil {
 		return nil, err
 	}
@@ -217,7 +217,7 @@ func (r *Dgraph) InFlow(ctx context.Context, depth int, address string, token st
 	)
 	query = replacer.Replace(query)
 
-	resp, err := r.DB.NewTxn().Query(context.Background(), query)
+	resp, err := r.DB.NewTxn().Query(ctx, query)
 	if err != nil {
 		return nil, err
 	}
@@ -254,7 +254,7 @@ func (r *Dgraph) OutFlow(ctx context.Context, depth int, address string, token s
 	)
 	query = replacer.Replace(query)
 
-	resp, err := r.DB.NewTxn().Query(context.Background(), query)
+	resp, err := r.DB.NewTxn().Query(ctx, query)
 	if err != nil {
 		return nil, err
 	}
@@ -266,7 +266,7 @@ func (r *Dgraph) OutFlow(ctx context.Context, depth int, address string, token s
 	return res, nil
 }
 
-func (r *Dgraph) Path(ctx context.Context, path int, from string, to string) (interface{}, error) {
+func (r *Dgraph) Path(ctx context.Context, path int, from string, to string) (*model.ResponsePath, error) {
 	// show me people who have received money from anyone who has received money from me
 	query := ` 
 	{
@@ -296,7 +296,7 @@ func (r *Dgraph) Path(ctx context.Context, path int, from string, to string) (in
 	)
 	query = replacer.Replace(query)
 
-	resp, err := r.DB.NewTxn().Query(context.Background(), query)
+	resp, err := r.DB.NewTxn().Query(ctx, query)
 	if err != nil {
 		return nil, err
 	}

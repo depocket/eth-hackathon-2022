@@ -2,6 +2,8 @@ package app
 
 import (
 	"depocket.io/app/route"
+	"fmt"
+	"github.com/apex/gateway"
 	"github.com/dgraph-io/dgo/v200"
 	"github.com/dgraph-io/dgo/v200/protos/api"
 	"github.com/gin-gonic/gin"
@@ -11,6 +13,13 @@ import (
 )
 
 type Server struct{}
+
+func inLambda() bool {
+	if lambdaTaskRoot := os.Getenv("LAMBDA_TASK_ROOT"); lambdaTaskRoot != "" {
+		return true
+	}
+	return false
+}
 
 func (server *Server) Run(env string) error {
 	r := gin.Default()
@@ -26,5 +35,11 @@ func (server *Server) Run(env string) error {
 	s := route.NewRoute(log, r, dgraphClient)
 	s.Setup()
 
-	return r.Run(":" + os.Getenv("SERVER_PORT"))
+	if inLambda() {
+		fmt.Println("running aws lambda in aws")
+		return gateway.ListenAndServe(":8080", r)
+	} else {
+		fmt.Println("running aws lambda in local")
+		return r.Run(":" + os.Getenv("SERVER_PORT"))
+	}
 }
