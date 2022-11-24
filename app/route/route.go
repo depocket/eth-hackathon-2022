@@ -25,6 +25,9 @@ type Route struct {
 // Setup instances various repos and services and sets up the routers
 func (s *Route) Setup() {
 	v1Router := s.R.Group("/v1")
+	v1Router.GET("/hello", func(context *gin.Context) {
+		context.JSON(200, gin.H{"status": "ok"})
+	})
 
 	// repo layer
 	dgraphRepo := repo.NewRepoDgraph(s.Dgraph)
