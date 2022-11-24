@@ -1,6 +1,6 @@
 version: '3.8'
 services:
-  joon:
+  hackathon:
     container_name: hackathon
     image: "hackathon:${BUILD_VERSION}"
     hostname: hackathon

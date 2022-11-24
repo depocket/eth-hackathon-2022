@@ -6,7 +6,7 @@ DOCKER_IMAGE=$(PROJECT_NAME):$(BUILD_VERSION)
 GO_BUILD_ENV=CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GO111MODULE=on
 
 lambda:
-	GOARCH=amd64 GOOS=linux go build -o ./.build/main ./cmd/dgraph/dgraph.go
+	GOARCH=amd64 GOOS=linux go build -o ./.build/main ./main.go
 	zip -jrm ./.build/main.zip ./.build/main
 
 build:
