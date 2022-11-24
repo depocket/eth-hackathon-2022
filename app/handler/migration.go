@@ -24,7 +24,7 @@ func (h *MigrationHandler) MigrateDgraph(c *gin.Context) {
 			address: string @index(hash) .
 			type: string @index(hash) .
 			name: string @index(hash) .
-			
+			chain: string @index(hash) .
 			txn_id: string @index(hash) .
 			txn_time: datetime .
 			amount: float .
@@ -37,6 +37,7 @@ func (h *MigrationHandler) MigrateDgraph(c *gin.Context) {
 				address
 				type
 				name
+				chain
 			}
 
 			type Transaction {
@@ -47,6 +48,7 @@ func (h *MigrationHandler) MigrateDgraph(c *gin.Context) {
 				token_address
 				sender
 				recipient
+				chain
 			}
 		`,
 	})

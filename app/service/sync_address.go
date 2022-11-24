@@ -24,11 +24,10 @@ func NewSyncAddressService(log *zap.Logger, repo repo.DgraphInterface) *SyncAddr
 }
 
 type SyncAddressInterface interface {
-	SyncAddress(ctx context.Context, txns []model.Transaction, symbols map[string]model.Token) error
+	SyncAddress(ctx context.Context, chain string, txns []model.Transaction, symbols map[string]model.Token) error
 }
 
-func (s *SyncAddressService) SyncAddress(ctx context.Context, txns []model.Transaction, symbols map[string]model.Token) error {
-
+func (s *SyncAddressService) SyncAddress(ctx context.Context, chain string, txns []model.Transaction, symbols map[string]model.Token) error {
 	for _, txn := range txns {
 		action := model.TransferAction{}
 		if err := json.Unmarshal(txn.DecodedInput.RawMessage, &action); err != nil {
@@ -38,7 +37,7 @@ func (s *SyncAddressService) SyncAddress(ctx context.Context, txns []model.Trans
 		_, err := s.repo.GetByTransaction(ctx, txn.Hash)
 		if err != nil && !utils.IsNotFound(err) {
 			s.log.Sugar().Error(err)
-			return err
+			continue
 		}
 		if utils.IsNotFound(err) {
 			// sender
@@ -54,27 +53,29 @@ func (s *SyncAddressService) SyncAddress(ctx context.Context, txns []model.Trans
 				return err
 			}
 
-			alias := fmt.Sprintf("%s -> %v", symbols[txn.ToAddress].Symbol, utils.ConvertBalance(&action.Amount, big.NewInt(int64(symbols[txn.ToAddress].Decimals))))
+			amount := utils.ConvertBalance(&action.Amount, big.NewInt(int64(symbols[txn.ToAddress].Decimals)))
+			alias := fmt.Sprintf("%s:%v", symbols[txn.ToAddress].Symbol, utils.ConvertBalance(&action.Amount, big.NewInt(int64(symbols[txn.ToAddress].Decimals))))
 			if err := s.repo.CreateNode(ctx, "txn_id", action.Recipient, &model.TransactionDgraph{
-				Amount: float64(action.Amount.Int64()),
+				Amount: *amount,
 				Recipient: model.AddressDgraph{
 					UID:     uidRecipient,
 					Address: action.Recipient,
 					Name:    action.Recipient,
-					Type:    "test-reci",
+					Chain:   chain,
 					DType:   []string{"Address"},
 				},
 				Sender: model.AddressDgraph{
 					UID:     uidSender,
 					Address: txn.FromAddress,
 					Name:    txn.FromAddress,
-					Type:    "test-send",
+					Chain:   chain,
 					DType:   []string{"Address"},
 				},
+				Chain:        chain,
 				Name:         alias,
 				TokenAddress: txn.ToAddress,
 				TxnId:        txn.Hash,
-				TxnTime:      txn.Block.Time,
+				TxnTime:      txn.Time,
 				DType:        []string{"Transaction"},
 			}); err != nil {
 				s.log.Sugar().Error(err)

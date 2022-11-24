@@ -8,17 +8,15 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"go.uber.org/zap"
-	"gorm.io/gorm"
 )
 
 // NewRoute creates a new router services
-func NewRoute(db *gorm.DB, Log *zap.Logger, R *gin.Engine, dgraph *dgo.Dgraph) *Route {
-	return &Route{db, Log, R, dgraph}
+func NewRoute(Log *zap.Logger, R *gin.Engine, dgraph *dgo.Dgraph) *Route {
+	return &Route{Log, R, dgraph}
 }
 
 // Route lets us bind specific services when setting up routes
 type Route struct {
-	DB     *gorm.DB
 	Log    *zap.Logger
 	R      *gin.Engine
 	Dgraph *dgo.Dgraph
@@ -37,6 +35,6 @@ func (s *Route) Setup() {
 
 	// handler
 	handler.NewMigrationHandler(v1Router, s.Log, s.Dgraph)
-	handler.NewSyncAddressHandler(v1Router, s.Log, s.DB, syncAddrService)
-	handler.NewAddressHandler(v1Router, s.Log, s.DB, addrService)
+	handler.NewSyncAddressHandler(v1Router, s.Log, syncAddrService)
+	handler.NewAddressHandler(v1Router, s.Log, addrService)
 }

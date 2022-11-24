@@ -31,10 +31,10 @@ type DgraphInterface interface {
 	CreateNode(ctx context.Context, field, value string, user interface{}) error
 	UpdateNode(ctx context.Context, field, value string, user interface{}) error
 
-	OutFlow(depth int, address string, token string, from time.Time, to time.Time) (*model.ResponseFlow, error)
-	InFlow(depth int, address string, token string, from time.Time, to time.Time) (*model.ResponseFlow, error)
-	FullFlow(depth int, address string, token string, from time.Time, to time.Time) (*model.ResponseFlow, error)
-	Path(path int, from string, to string) (interface{}, error)
+	OutFlow(ctx context.Context, depth int, address string, token string, from time.Time, to time.Time) (*model.ResponseFlow, error)
+	InFlow(ctx context.Context, depth int, address string, token string, from time.Time, to time.Time) (*model.ResponseFlow, error)
+	FullFlow(ctx context.Context, depth int, address string, token string, from time.Time, to time.Time) (*model.ResponseFlow, error)
+	Path(ctx context.Context, path int, from string, to string) (interface{}, error)
 }
 
 func (r *Dgraph) GetByAddress(ctx context.Context, address string) (string, error) {
@@ -148,7 +148,7 @@ func (r *Dgraph) UpdateNode(ctx context.Context, field, value string, user inter
 	return nil
 }
 
-func (r *Dgraph) FullFlow(depth int, address string, token string, from time.Time, to time.Time) (*model.ResponseFlow, error) {
+func (r *Dgraph) FullFlow(ctx context.Context, depth int, address string, token string, from time.Time, to time.Time) (*model.ResponseFlow, error) {
 	// people who have given money to anyone who has given money to me
 	// people who have received money from anyone who has received money from me
 	query := `
@@ -192,7 +192,7 @@ func (r *Dgraph) FullFlow(depth int, address string, token string, from time.Tim
 	return res, nil
 }
 
-func (r *Dgraph) InFlow(depth int, address string, token string, from time.Time, to time.Time) (*model.ResponseFlow, error) {
+func (r *Dgraph) InFlow(ctx context.Context, depth int, address string, token string, from time.Time, to time.Time) (*model.ResponseFlow, error) {
 	// show me people who have given money to anyone who has given money to me
 	query := `
 		{
@@ -229,7 +229,7 @@ func (r *Dgraph) InFlow(depth int, address string, token string, from time.Time,
 	return res, nil
 }
 
-func (r *Dgraph) OutFlow(depth int, address string, token string, from time.Time, to time.Time) (*model.ResponseFlow, error) {
+func (r *Dgraph) OutFlow(ctx context.Context, depth int, address string, token string, from time.Time, to time.Time) (*model.ResponseFlow, error) {
 	// show me people who have received money from anyone who has received money from me
 	query := `
 		{
@@ -266,7 +266,7 @@ func (r *Dgraph) OutFlow(depth int, address string, token string, from time.Time
 	return res, nil
 }
 
-func (r *Dgraph) Path(path int, from string, to string) (interface{}, error) {
+func (r *Dgraph) Path(ctx context.Context, path int, from string, to string) (interface{}, error) {
 	// show me people who have received money from anyone who has received money from me
 	query := ` 
 	{
@@ -281,7 +281,7 @@ func (r *Dgraph) Path(path int, from string, to string) (interface{}, error) {
 	  recipient
 	 }
 	  
-	 path(func: uid(path)) {
+	 node(func: uid(path)) {
 	   uid
 	   address
 	   name
@@ -301,7 +301,7 @@ func (r *Dgraph) Path(path int, from string, to string) (interface{}, error) {
 		return nil, err
 	}
 
-	res := map[string]interface{}{}
+	res := &model.ResponsePath{}
 	if err := json.Unmarshal(resp.Json, &res); err != nil {
 		return nil, err
 	}
