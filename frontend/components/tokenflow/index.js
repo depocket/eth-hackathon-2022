@@ -21,30 +21,38 @@ export default function TokenFlow(props){
     "edges": []
   });
   const options = {
+    nodes: {
+      shape: "dot",
+      scaling: {
+        min: 10,
+        max: 30,
+      },
+      font: {
+        size: 12,
+        face: "Tahoma",
+      },
+    },
     autoResize: true,
     layout: {
       hierarchical: false
     },
     edges: {
-      color: "#000000",
+      color: { inherit: true },
+      width: 0.15,
       smooth: {
-        enabled: true,
-        type: "discrete",
-        roundness: 0.5
-      }
+        type: "continuous",
+      },
     },
     height: "600px",
     width: "1200px",
-    physics: {
-      stabilization: true,
-    },
+    physics: {barnesHut: {gravitationalConstant: -5000, springConstant: 0.001, springLength: 100}},
     interaction: { 
       dragView: true,
       hover: true,
       hoverConnectedEdges: true,
       selectable: true,
       selectConnectedEdges: true
-    }
+    },
   };
     const handleSubmitClick = function(event) {
       console.log(walletAddress, tokenAddress, startDate.toISOString(), endDate.toISOString())
@@ -72,6 +80,7 @@ export default function TokenFlow(props){
             newNode.title = format.getShortestAddress(node.label)
             newNode.value = node.label
             newNode.shape = 'circle'
+            newNode.color = node.color
             return newNode
           })
           data.edges = dt.edges.map(function(edge){

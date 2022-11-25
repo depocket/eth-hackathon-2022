@@ -41,7 +41,7 @@ func (h *AddressHandler) FullFlow(c *gin.Context) {
 		return
 	}
 
-	c.JSON(200, TransformFlowResponse(flow))
+	c.JSON(200, TransformFlowResponse(flow, jsonParams.Address))
 }
 
 func (h *AddressHandler) InFlow(c *gin.Context) {
@@ -58,7 +58,7 @@ func (h *AddressHandler) InFlow(c *gin.Context) {
 		return
 	}
 
-	c.JSON(200, TransformFlowResponse(flow))
+	c.JSON(200, TransformFlowResponse(flow, jsonParams.Address))
 }
 
 func (h *AddressHandler) OutFlow(c *gin.Context) {
@@ -74,7 +74,7 @@ func (h *AddressHandler) OutFlow(c *gin.Context) {
 		utils.Response(c, err)
 		return
 	}
-	c.JSON(200, TransformFlowResponse(flow))
+	c.JSON(200, TransformFlowResponse(flow, jsonParams.Address))
 
 }
 
@@ -97,15 +97,18 @@ func (h *AddressHandler) Path(c *gin.Context) {
 
 }
 
-func TransformFlowResponse(flow *model.ResponseFlow) model.FlowTransformed {
+func TransformFlowResponse(flow *model.ResponseFlow, address string) model.FlowTransformed {
 	nodes := make(map[string]model.Node, 0)
 	edges := make(map[string]model.Edge, 0)
 	resNode := make([]model.Node, 0)
 	resEdge := make([]model.Edge, 0)
 	for _, data := range flow.Data {
-		identifyFlow(data, nodes, edges)
+		identifyFlow(data, nodes, edges, utils.ColorMainNode)
 	}
 	for _, v := range nodes {
+		if v.Label == address {
+			v.Color = utils.ColorMainNode
+		}
 		resNode = append(resNode, v)
 	}
 	for _, v := range edges {
@@ -152,12 +155,13 @@ func TransformPathResponse(path *model.ResponsePath) model.PathTransformed {
 	}
 }
 
-func identifyFlow(output model.AddressDgraphResponse, nodes map[string]model.Node, edges map[string]model.Edge) {
+func identifyFlow(output model.AddressDgraphResponse, nodes map[string]model.Node, edges map[string]model.Edge, color string) {
 	if output.UID != "" {
 		nodes[output.UID] = model.Node{
 			Id:    output.UID,
 			Label: output.Address,
 			Title: "address",
+			Color: color,
 		}
 		for _, sender := range output.Sender {
 			if sender.UID != "" {
@@ -168,9 +172,14 @@ func identifyFlow(output model.AddressDgraphResponse, nodes map[string]model.Nod
 						To:       sender.Recipient.UID,
 						Label:    sender.Name,
 						Relation: "out",
+						Smooth: model.SmoothEdge{
+							Type:      utils.SmoothType(),
+							Roundness: utils.SmoothRoundness(),
+						},
 					}
-					identifyFlow(sender.Sender, nodes, edges)
-					identifyFlow(sender.Recipient, nodes, edges)
+					color = utils.ColorSender
+					identifyFlow(sender.Sender, nodes, edges, color)
+					identifyFlow(sender.Recipient, nodes, edges, color)
 				}
 			}
 		}
@@ -183,9 +192,14 @@ func identifyFlow(output model.AddressDgraphResponse, nodes map[string]model.Nod
 						To:       output.UID,
 						Label:    recipient.Name,
 						Relation: "in",
+						Smooth: model.SmoothEdge{
+							Type:      utils.SmoothType(),
+							Roundness: utils.SmoothRoundness(),
+						},
 					}
-					identifyFlow(recipient.Sender, nodes, edges)
-					identifyFlow(recipient.Recipient, nodes, edges)
+					color = utils.ColorRecipient
+					identifyFlow(recipient.Sender, nodes, edges, color)
+					identifyFlow(recipient.Recipient, nodes, edges, color)
 				}
 			}
 		}
