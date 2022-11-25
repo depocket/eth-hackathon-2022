@@ -93,7 +93,7 @@ func (h *AddressHandler) Path(c *gin.Context) {
 		return
 	}
 
-	c.JSON(200, TransformPathResponse(path))
+	c.JSON(200, TransformPathResponse(path, jsonParams.ToAddress, jsonParams.FromAddress))
 
 }
 
@@ -120,17 +120,22 @@ func TransformFlowResponse(flow *model.ResponseFlow, address string) model.FlowT
 	}
 }
 
-func TransformPathResponse(path *model.ResponsePath) model.PathTransformed {
+func TransformPathResponse(path *model.ResponsePath, addressFrom string, addrerssTo string) model.PathTransformed {
 	trans := make(map[string]string, 0)
 	resNode := make([]model.Node, 0)
 	for _, n := range path.Node {
 		if n.Address == "" {
 			trans[n.UID] = n.Name
 		} else {
+			color := utils.ColorMainNode
+			if n.Address == addressFrom || n.Address == addrerssTo {
+				color = utils.ColorFromToNode
+			}
 			resNode = append(resNode, model.Node{
 				Id:    n.UID,
 				Label: n.Address,
 				Title: "address",
+				Color: color,
 			})
 		}
 	}
@@ -146,6 +151,10 @@ func TransformPathResponse(path *model.ResponsePath) model.PathTransformed {
 				From:  edge[i],
 				To:    edge[i+2],
 				Label: trans[edge[i+1]],
+				Smooth: model.SmoothEdge{
+					Type:      utils.SmoothType(),
+					Roundness: utils.SmoothRoundness(),
+				},
 			})
 		}
 	}

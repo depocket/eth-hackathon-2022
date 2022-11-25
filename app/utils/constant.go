@@ -3,9 +3,10 @@ package utils
 import "math/rand"
 
 const (
-	ColorMainNode  = "paleturquoise"
-	ColorSender    = "yellowgreen"
-	ColorRecipient = "mistyrose"
+	ColorMainNode   = "paleturquoise"
+	ColorFromToNode = "lightsalmon"
+	ColorSender     = "yellowgreen"
+	ColorRecipient  = "mistyrose"
 )
 
 func SmoothType() string {
