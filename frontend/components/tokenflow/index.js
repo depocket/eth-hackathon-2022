@@ -43,8 +43,8 @@ export default function TokenFlow(props){
         type: "continuous",
       },
     },
-    height: "600px",
-    width: "1200px",
+    height: "700px",
+    width: "1800px",
     physics: {barnesHut: {gravitationalConstant: -5000, springConstant: 0.001, springLength: 100}},
     interaction: { 
       dragView: true,

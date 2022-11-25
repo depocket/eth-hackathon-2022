@@ -25,5 +25,5 @@ func SmoothType() string {
 }
 
 func SmoothRoundness() float64 {
-	return rand.Float64()
+	return (float64(rand.Intn((5-1)-1) + 1)) / float64(10)
 }
