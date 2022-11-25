@@ -174,7 +174,7 @@ func (r *Dgraph) FullFlow(ctx context.Context, depth int, address string, token 
 	`
 	replacer := strings.NewReplacer(
 		"[ADDRESS]", address,
-		"[DEPTH]", fmt.Sprintf("%v", depth),
+		"[DEPTH]", fmt.Sprintf("%v", 4),
 		"[FROM]", from.String(),
 		"[TO]", to.String(),
 		"[TOKEN]", token,
