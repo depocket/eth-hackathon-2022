@@ -112,7 +112,6 @@ func TransformFlowResponse(flow *model.ResponseFlow) model.FlowTransformed {
 		resEdge = append(resEdge, v)
 	}
 	return model.FlowTransformed{
-		Data:  flow.Data,
 		Nodes: resNode,
 		Edges: resEdge,
 	}

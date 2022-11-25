@@ -1,9 +1,8 @@
 package model
 
 type FlowTransformed struct {
-	Data  []AddressDgraphResponse `json:"data"`
-	Nodes []Node                  `json:"nodes"`
-	Edges []Edge                  `json:"edges"`
+	Nodes []Node `json:"nodes"`
+	Edges []Edge `json:"edges"`
 }
 
 type PathTransformed struct {
