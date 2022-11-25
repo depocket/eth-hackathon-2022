@@ -11,7 +11,7 @@ export default function TokenFlow(props){
   var [tokenAddress, setTokenAddress] = useState("")
   const [startDate, setStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState(new Date());
-  const [depth, setDepth] = useState(10);
+  const [depth, setDepth] = useState(5);
   const [isSSR, setIsSSR] = useState(true);
   useEffect(() => {
     setIsSSR(false);
@@ -74,6 +74,7 @@ export default function TokenFlow(props){
         (async function(){
           var dt = await res.json()
           var data = {}
+          if (dt.nodes) {
           data.nodes = dt.nodes.map(function(node){
             var newNode = node
             newNode.label = format.getShortestAddress(node.label)
@@ -88,6 +89,8 @@ export default function TokenFlow(props){
             return newEdge
           })
           setResponse(dt)
+          }
+
         })()
       }).catch(function(e){
         console.log(e)
